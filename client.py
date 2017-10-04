@@ -21,8 +21,6 @@ class Client():
         thread.join()
         assert(not self.resp.empty())
         data = self.resp.get()
-        print(type(data))
-        print(data)
         self.s.close()
         return data
 

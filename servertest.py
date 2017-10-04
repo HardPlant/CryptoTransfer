@@ -61,8 +61,7 @@ class ServerTest(unittest.TestCase):
 
 
     def tearDown(self):
-        self.server.running = False
-        self.server.join()
+        self.server.stop()
 
     def testInit(self):
         data = self.client.send("Hi!")
@@ -73,6 +72,7 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(data.decode(), "Hello!")
         data = self.client.send("Toure")
         self.assertEqual(data.decode(), "Toure")
+        print("Tour! returns")
 
 
 if __name__ == '__main__':
