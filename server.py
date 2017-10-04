@@ -4,10 +4,11 @@ import threading
 # from CustomCrypto.mode import ECB
 import CustomCrypto.LEA as LEA
 
-
-encryptor = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+def get_encryptor():
+    return LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
 
 def response(request):
+    encryptor = get_encryptor()
     encrypt = encryptor.encrypt(request)
     final = encryptor.final()
     return encrypt+final
@@ -51,7 +52,7 @@ class EchoServer(threading.Thread):
     def send_null(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.host, self.port))
-        s.send('')
+        s.send(b'')
         s.close()
 
 
