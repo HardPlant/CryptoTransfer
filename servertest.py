@@ -74,6 +74,7 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(data.decode(), "Toure")
         print("Tour! returns")
         connector = self.server.get_connector()
+        print("Last connector : ")
         print(connector)
 
 

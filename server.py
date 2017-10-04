@@ -42,7 +42,7 @@ class EchoServer(threading.Thread):
     def get_connector(self):
         if not self.connector.empty():
             result = self.connector.queue
-            return result[0]
+            return result[-1]
         else:
             return None
 
@@ -59,6 +59,7 @@ class EchoServer(threading.Thread):
 
         print("Listen() Stopped")
         self.sock.close()
+        return True
 
     def listenToClient(self, client, address):
         res = b''
@@ -71,14 +72,15 @@ class EchoServer(threading.Thread):
                     print(res)
                     client.send(res)
                 else:
-                    print("disconnected with Response:")
+                    print("disconnected within else :" + str(address[0]) + ':' + str(address[1]))
                     print(res)
                     raise Exception('Client disconnected')
             except:
-                self.connector.get()
+                print("disconnected with Exception:" + str(address[0]) + ':' + str(address[1]))
                 client.close()
                 return False
 
         if client:
             print("listenToClient() Stopped")
             client.close()
+            return True
