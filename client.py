@@ -25,3 +25,4 @@ class Client(threading.Thread):
         data = decryptor.decrypt(data) + decryptor.final()
         print('Received', repr(data))
         self.s.close()
+        return data
