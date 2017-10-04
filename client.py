@@ -19,21 +19,27 @@ class Client():
         thread.daemon = True
         thread.start()
         thread.join()
-        assert(not self.resp.empty())
-        data = self.resp.get()
+        if not self.resp.empty():
+            data = self.resp.get()
+        else:
+            data = None
         self.s.close()
         return data
 
     def sendsocket(self,host, port, data,queue):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((host, port))
-        decryptor = get_decryptor()
-        s = self.s
-        if type(data) is str:
-            data = bytes(data,'utf-8')
-        s.send(data)
-        data = s.recv(1024)
-        data = decryptor.decrypt(data) + decryptor.final()
-        print('Received', repr(data))
-        self.resp.put(data)
+        try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s.connect((host, port))
+            decryptor = get_decryptor()
+            s = self.s
+            if type(data) is str:
+                data = bytes(data,'utf-8')
+            s.send(data)
+            data = s.recv(1024)
+            data = decryptor.decrypt(data) + decryptor.final()
+            print('Received', repr(data))
+            self.resp.put(data)
+        except:
+            self.s.close()
+            print("Client: remote connection failed")
 
