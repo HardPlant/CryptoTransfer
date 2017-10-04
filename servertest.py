@@ -2,7 +2,7 @@ import unittest
 import unittest.mock
 import requests
 
-from CustomCrypto.LEA import LEA
+from CustomCrypto.LEA import LEA,CBC,ECB
 from server import EchoServer
 from client import EchoClient
 
@@ -61,6 +61,19 @@ class CryptoTest(unittest.TestCase):
 
         p = decrypted.decode('utf-8')
         print(p)
+
+    def testCBC(self):
+        tool = ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        plain = 'Hello World With lesser guyes and What are you saying bitch!?'
+        encrypt = tool.encrypt(plain)
+        print(len(tool.buffer))
+        encryptfinal = tool.final()
+        print(encrypt+encryptfinal)
+
+        tool = ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        decrypt = tool.decrypt(encrypt+encryptfinal)
+        decryptfinal = tool.final()
+        print(decrypt.decode() + decryptfinal.decode())
 
     def request_recv_send_test(self):
         pass

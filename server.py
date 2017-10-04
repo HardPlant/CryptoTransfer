@@ -1,7 +1,7 @@
 # Echo server program
 import socket
 from multiprocessing import Process, Value
-import CustomCrypto.mode.ECB
+from CustomCrypto.mode import ECB
 from CustomCrypto.LEA import LEA
 
 class EchoServer(object):
@@ -12,9 +12,9 @@ class EchoServer(object):
         print("''Server Initialized")
 
     def getResponse(self,data):
-        encrypt = self.encryptor.encrypt(data)
-        return encrypt
-
+        while len(data) > 16:
+            encrypt = self.encryptor.encrypt(data)
+            return encrypt
 
     def boot(self,HOST,PORT):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
