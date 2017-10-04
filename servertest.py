@@ -24,13 +24,26 @@ class Servertest(unittest.TestCase):
 
 class CryptoTest(unittest.TestCase):
     def setUp(self):
-        pass
+        self.encryptor = LEA(bytes(1)*32)
+        print()
 
     def tearDown(self):
         pass
 
-    def test(self):
-        pass
+    def testLEA(self):
+        plain = bytes("Hello World" + " "*5, 'utf-8')
+        self.assertEqual(type(plain), type(bytes()))
+
+        encrypted = self.encryptor.encrypt(plain)
+        self.assertEqual(type(encrypted), type(bytearray()))
+        print(encrypted)
+
+        decrypted = self.encryptor.decrypt(encrypted)
+        self.assertEqual(type(decrypted), type(bytearray()))
+        print(decrypted)
+
+        p = decrypted.decode('utf-8')
+        print(p)
 
 
 if __name__ == '__main__':
