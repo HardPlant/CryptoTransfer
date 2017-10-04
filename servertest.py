@@ -62,7 +62,6 @@ class ServerTest(unittest.TestCase):
 
     def tearDown(self):
         self.server.stop()
-        data = self.client.send("Hello!")
         print("tearDown returns")
 
     def testInit(self):

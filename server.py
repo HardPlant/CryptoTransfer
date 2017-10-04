@@ -33,6 +33,20 @@ class EchoServer(threading.Thread):
     def stop(self):
         print("Server try to stop")
         self._stop_event.set()
+        ct = threading.Thread(target = self.send_null, args=(self.host, self.port))
+        ct.daemon = True
+        ct.start()
+
+
+    def send_null(self,host,port):
+        try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s.connect((host, port))
+            self.s.send(b'')
+        except:
+            print("Server stopped.")
+            self.s.close()
+
 
     def stopped(self):
         if self._stop_event.is_set():
