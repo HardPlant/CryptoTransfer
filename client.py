@@ -2,7 +2,7 @@
 import socket
 
 class EchoClient(object):
-    def __init__(self, host = '', port = 50007):
+    def __init__(self, host = '127.0.0.1', port = 50007):
         self.setUp(host,port)
 
     def setUp(self, host, port):
