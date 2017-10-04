@@ -43,7 +43,9 @@ class EchoServer(threading.Thread):
         while not self.stopped():
             client, address = self.sock.accept()
             client.settimeout(60)
-            threading.Thread(target = self.listenToClient, args=(client, address)).start()
+            ct = threading.Thread(target = self.listenToClient, args=(client, address))
+            ct.daemon = True
+            ct.start()
 
         print("Listen() Stopped")
         self.sock.close()
