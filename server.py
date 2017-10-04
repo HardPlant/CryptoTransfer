@@ -1,6 +1,7 @@
 # Echo server program
 import socket
 import threading
+import queue
 # from CustomCrypto.mode import ECB
 import CustomCrypto.LEA as LEA
 
@@ -23,6 +24,7 @@ class EchoServer(threading.Thread):
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
+        self.connector = queue.Queue()
         self._stop_event = threading.Event()
 
     def run(self):
@@ -36,6 +38,9 @@ class EchoServer(threading.Thread):
         if self._stop_event.is_set():
             print("Thread stop checked")
         return self._stop_event.is_set()
+
+    def get_connector(self):
+        pass
 
     def listen(self):
         print('Server running at ' + self.host + ':' + str(self.port))
