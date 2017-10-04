@@ -4,19 +4,21 @@ import threading
 # from CustomCrypto.mode import ECB
 import CustomCrypto.LEA as LEA
 
+
 encryptor = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+
 
 def response(request):
     encrypt = encryptor.encrypt(request)
     final = encryptor.final()
     return encrypt+final
 
+
 class EchoServer(threading.Thread):
     def __init__(self, host='127.0.0.1', port=50007):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
-
 
     def run(self):
         self.boot()
@@ -27,6 +29,7 @@ class EchoServer(threading.Thread):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.host, self.port))
         s.listen(1)
+        print('Server running at' + self.host + ':' + self.port)
         self.conn, self.addr = s.accept()
         print('Connected by', self.addr)
 
