@@ -7,7 +7,6 @@ import CustomCrypto.LEA as LEA
 
 encryptor = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
 
-
 def response(request):
     encrypt = encryptor.encrypt(request)
     final = encryptor.final()
@@ -26,11 +25,11 @@ class EchoServer(threading.Thread):
         self.conn.close()
 
     def boot(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((self.host, self.port))
-        s.listen(1)
-        print('Server running at' + self.host + ':' + self.port)
-        self.conn, self.addr = s.accept()
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.bind((self.host, self.port))
+        self.s.listen(1)
+        print('Server running at' + self.host + ':' + str(self.port))
+        self.conn, self.addr = self.s.accept()
         print('Connected by', self.addr)
 
     def stop(self):
@@ -51,7 +50,7 @@ class EchoServer(threading.Thread):
 
     def send_null(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, self.host))
+        s.connect((self.host, self.port))
         s.send('')
         s.close()
 

@@ -1,6 +1,10 @@
 # Echo client program
 import socket
 import threading
+import CustomCrypto.LEA as LEA
+
+
+decryptor = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
 
 
 class Client(threading.Thread):
@@ -18,5 +22,6 @@ class Client(threading.Thread):
             data = bytes(data,'utf-8')
         s.send(data)
         data = s.recv(1024)
+        data = decryptor.decrypt(data) + decryptor.final()
         print('Received', repr(data))
         self.s.close()

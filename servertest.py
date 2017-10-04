@@ -22,20 +22,6 @@ class Servertest(unittest.TestCase):
         self.assertEqual(enc, self.enc)
 
 
-def get_data(url):
-    resp = requests.get(url)
-    return resp
-
-class GetDataTest(unittest.TestCase):
-    def test_get_data(self):
-        with unittest.mock.patch.object(requests,'get') as get_mock:
-            get_mock.return_value = mock_response = unittest.mock.Mock()
-            mock_response.status_code = 200
-            mock_response.content = {'Help!' : 'Hello'}
-            resp = get_data("http://hello.com")
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(resp.content['Help!'], 'Hello')
-
 class CryptoTest(unittest.TestCase):
     def setUp(self):
         self.encryptor = LEA.LEA(bytes(1)*32)
@@ -66,16 +52,20 @@ class CryptoTest(unittest.TestCase):
         decrypt = tool.decrypt(encrypt+encryptfinal)
         decryptfinal = tool.final()
 
-def get_input(text):
-    return input(text)
 
-def answer():
-    ans = get_input('enter yes or no')
+class ServerTest(unittest.TestCase):
+    def setUp(self):
+        self.server = server.EchoServer()
+        self.server.start()
+        self.client = client.Client()
 
-class InputTest(unittest.TestCase):
-    def test_answer_yes(self, input):
-        self.assertEqual(answer(), 'you entered yes')
 
+    def tearDown(self):
+        self.server.stop()
+
+    def testInit(self):
+        data = self.client.send("Hi!")
+        self.assertEqual(data, "Hi!")
 
 
 if __name__ == '__main__':
