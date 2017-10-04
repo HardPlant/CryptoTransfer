@@ -2,25 +2,29 @@ import unittest
 from unittest import mock
 import requests
 import CustomCrypto.LEA as LEA
-from server import EchoServer
-from client import EchoClient
+import server
+import client
 
-def get_data(url):
-    resp = requests.get(url)
-    return resp
 
 class Servertest(unittest.TestCase):
     def setUp(self):
-        pass
+        self.encrypt = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        self.decrypt = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        self.plain = "BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY"
+        self.enc = self.encrypt.encrypt(self.plain) + self.encrypt.final()
+        self.dec = self.decrypt.decrypt(self.enc) + self.decrypt.final()
 
     def tearDown(self):
         pass
 
     def testEncrypted(self):
-        pass
+        enc = server.response("BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY")
+        self.assertEqual(enc, self.enc)
 
 
-
+def get_data(url):
+    resp = requests.get(url)
+    return resp
 
 class GetDataTest(unittest.TestCase):
     def test_get_data(self):

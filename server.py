@@ -1,38 +1,33 @@
 # Echo server program
 import socket
-from multiprocessing import Process, Value
+import threading
 # from CustomCrypto.mode import ECB
-from CustomCrypto.LEA import LEA,ECB
+import CustomCrypto.LEA as LEA
 
-class EchoServer(object):
+encryptor = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+
+def response(request):
+    encrypt = encryptor.encrypt(request)
+    final = encryptor.final()
+    return encrypt+final
+
+class EchoServer(threading.Thread):
     def __init__(self, host='127.0.0.1', port=50007):
-        self.encryptor = ECB(True, bytes('AAAA') * 8, PKCS5Padding=True)
         self.host = host
         self.port = port
-        print("''Server Initialized")
 
-    def response(self, request, mode):
-        while len(request) > 16:
-            encrypt = self.encryptor.encrypt(request)
-            final = self.encryptor.final()
-            return encrypt+final
+    def run(self):
+        pass
 
-    def boot(self,HOST,PORT):
+    def boot(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((HOST, PORT))
+        s.bind((self.host, self.port))
         s.listen(1)
         conn, addr = s.accept()
         print('Connected by', addr)
 
         self.echo(conn,addr)
         conn.close()
-
-    def start(self,host,port):
-        self.server = Process(target=self.boot, args=(host,port))
-        print("Server Started")
-        while not self.server.is_alive():
-            pass
-        return True
 
     def stop(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
