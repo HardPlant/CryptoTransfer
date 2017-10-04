@@ -1,25 +1,42 @@
 import unittest
+import unittest.mock
+import requests
+
 from CustomCrypto.LEA import LEA
-from unittest.mock import patch
 from server import EchoServer
 from client import EchoClient
 
+def get_data(url):
+    resp = requests.get(url)
+    return resp
 
-@patch('server.EchoServer')
-@patch('client.EchoClient')
 class Servertest(unittest.TestCase):
     def setUp(self):
-        self.server = EchoServer()
-        self.client = EchoClient()
-        self.server.start()
+        pass
+#        self.server = EchoServer()
+#        self.client = EchoClient()
+#        self.server.start()
 
     def tearDown(self):
-        self.client.close()
-        self.server.stop()
+        pass
+#        self.client.close()
+#        self.server.stop()
 
     def passtestecho(self):
-        data = self.client.send()
-        self.assertEqual(data, "Hello, world", "data not equal.")
+        pass
+#        data = self.client.send()
+#        self.assertEqual(data, "Hello, world", "data not equal.")
+
+class GetDataTest(unittest.TestCase):
+    def test_get_data(self):
+        with unittest.mock.patch.object(requests,'get') as get_mock:
+            get_mock.return_value = mock_response = unittest.mock.Mock()
+            mock_response.status_code = 200
+            mock_response.content = {'Help!' : 'Hello'}
+            resp = get_data("http://hello.com")
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content['Help!'], 'Hello')
+
 
 
 class CryptoTest(unittest.TestCase):
@@ -44,6 +61,10 @@ class CryptoTest(unittest.TestCase):
 
         p = decrypted.decode('utf-8')
         print(p)
+
+    def request_recv_send_test(self):
+        pass
+
 
 
 if __name__ == '__main__':

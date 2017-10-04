@@ -1,9 +1,16 @@
 # Echo client program
 import socket
+from CustomCrypto.LEA import LEA
 
 class EchoClient(object):
     def __init__(self, host = '127.0.0.1', port = 50007):
-        self.setUp(host,port)
+#        self.setUp(host,port)
+        self.decrpytor = LEA(bytes('AAAA')*8)
+        self.response = ''
+
+    def getResponse(self):
+        return self.response
+
 
     def setUp(self, host, port):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
