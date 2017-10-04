@@ -3,16 +3,33 @@ import socket
 from multiprocessing import Process
 import CustomCrypto.mode.ECB
 
-HOST = ''                 # Symbolic name meaning the local host
-PORT = 50007              # Arbitrary non-privileged port
+
+class EchoServer(object):
+    def __init__(self, host='', port=50007):
+        self.host = host
+        self.port = port
+        self.server = Process(target=boot, args=(host,port))
+
+    def start(self):
+        return self.server.start()
+
+    def stop(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((self.host, self.host))
+        s.send('')
+        data = s.recv(1024)
+        s.close()
+        return self.server.join()
+
 
 running = True
-def boot():
+
+def boot(HOST,PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
     s.listen(1)
-    print('Connected by', addr)
     conn, addr = s.accept()
+    print('Connected by', addr)
 
     echo(conn,addr)
     conn.close()
