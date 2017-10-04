@@ -4,8 +4,10 @@ import threading
 # from CustomCrypto.mode import ECB
 import CustomCrypto.LEA as LEA
 
+
 def get_encryptor():
     return LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+
 
 def response(request):
     encryptor = get_encryptor()
@@ -19,46 +21,35 @@ class EchoServer(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind((self.host, self.port))
 
     def run(self):
-        self.boot()
-        self.echo()
-        self.conn.close()
+        self.listen()
 
-    def boot(self):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.bind((self.host, self.port))
-        self.s.listen(1)
-        print('Server running at' + self.host + ':' + str(self.port))
-        self.conn, self.addr = self.s.accept()
-        print('Connected by', self.addr)
+    def listen(self):
+        print('Server running at ' + self.host + ':' + str(self.port))
+        self.sock.listen(5)
+        while True:
+            client, address = self.sock.accept()
+            client.settimeout(60)
+            threading.Thread(target = self.listenToClient, args=(client, address)).start()
 
-    def stop(self):
-        stopper = threading.Thread(target=self.send_null())
-        stopper.daemon = True
-        stopper.start()
-
-    def echo(self):
-        running = True
-        conn = self.conn
-        addr = self.addr
-
-        while running is True:
-            data = conn.recv(1024)
-            if not data: break
-            res = response(data)
-            conn.send(res)
-
-    def send_null(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, self.port))
-        s.send(b'')
-        s.close()
-
-
-
-
-
-
-
+    def listenToClient(self, client, address):
+        res = b''
+        while True:
+            try:
+                data = client.recv(1024)
+                if data:
+                    res = response(data)
+                    print('Server sends:')
+                    print(res)
+                    client.send(res)
+                else:
+                    print("recent response:")
+                    print(res)
+                    raise Exception('Client disconnected')
+            except:
+                client.close()
+                return False
 
