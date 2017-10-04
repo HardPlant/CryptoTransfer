@@ -1,4 +1,5 @@
 import unittest
+from server import EchoServer
 
 class Servertest(unittest.TestCase):
     def setUp(self):

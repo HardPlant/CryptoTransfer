@@ -1,11 +1,25 @@
 # Echo client program
 import socket
 
-HOST = 'daring.cwi.nl'    # The remote host
-PORT = 50007              # The same port as used by the server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-s.send('Hello, world')
-data = s.recv(1024)
-s.close()
-print('Received', repr(data))
+class EchoClient(object):
+    def __init__(self, host = '', port = 50007):
+        self.setUp(host,port)
+
+    def setUp(self, host, port):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((host, port))
+
+    def send(self):
+        s = self.s
+        s.send('Hello, world')
+        data = s.recv(1024)
+        print('Received', repr(data))
+        return data
+
+    def close(self):
+        self.s.close()
+
+
+
+
+
