@@ -65,7 +65,7 @@ class ServerTest(unittest.TestCase):
 
     def testInit(self):
         data = self.client.send("Hi!")
-        self.assertEqual(data, "Hi!")
+        self.assertEqual(data.decode(), "Hi!")
 
 
 if __name__ == '__main__':
