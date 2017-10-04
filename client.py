@@ -3,7 +3,7 @@ import socket
 import threading
 
 
-class client(threading.Thread):
+class Client(threading.Thread):
     def __init__(self, host = '127.0.0.1', port = 50007):
         threading.Thread.__init__(self)
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

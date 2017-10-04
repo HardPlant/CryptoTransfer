@@ -50,30 +50,31 @@ class CryptoTest(unittest.TestCase):
 
         encrypted = self.encryptor.encrypt(plain)
         self.assertEqual(type(encrypted), type(bytearray()))
-        print(encrypted)
 
         decrypted = self.encryptor.decrypt(encrypted)
         self.assertEqual(type(decrypted), type(bytearray()))
-        print(decrypted)
 
         p = decrypted.decode('utf-8')
-        print(p)
 
     def testCBC(self):
         tool = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         plain = 'Hello World With lesser guyes and What are you saying bitch!?'
         encrypt = tool.encrypt(plain)
-        print(len(tool.buffer))
         encryptfinal = tool.final()
-        print(encrypt+encryptfinal)
 
         tool = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         decrypt = tool.decrypt(encrypt+encryptfinal)
         decryptfinal = tool.final()
-        print(decrypt.decode() + decryptfinal.decode())
 
-    def request_recv_send_test(self):
-        pass
+def get_input(text):
+    return input(text)
+
+def answer():
+    ans = get_input('enter yes or no')
+
+class InputTest(unittest.TestCase):
+    def test_answer_yes(self, input):
+        self.assertEqual(answer(), 'you entered yes')
 
 
 
