@@ -73,6 +73,8 @@ class ServerTest(unittest.TestCase):
         data = self.client.send("Toure")
         self.assertEqual(data.decode(), "Toure")
         print("Tour! returns")
+        connector = self.server.get_connector()
+        print(connector)
 
 
 if __name__ == '__main__':

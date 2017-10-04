@@ -40,13 +40,18 @@ class EchoServer(threading.Thread):
         return self._stop_event.is_set()
 
     def get_connector(self):
-        pass
+        if not self.connector.empty():
+            result = self.connector.queue
+            return result[0]
+        else:
+            return None
 
     def listen(self):
         print('Server running at ' + self.host + ':' + str(self.port))
-        self.sock.listen(5)
+        self.sock.listen(1)
         while not self.stopped():
             client, address = self.sock.accept()
+            self.connector.put(address)
             client.settimeout(60)
             ct = threading.Thread(target = self.listenToClient, args=(client, address))
             ct.daemon = True
@@ -70,6 +75,7 @@ class EchoServer(threading.Thread):
                     print(res)
                     raise Exception('Client disconnected')
             except:
+                self.connector.get()
                 client.close()
                 return False
 
