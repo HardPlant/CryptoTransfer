@@ -8,9 +8,8 @@ class EchoClient(object):
         self.decrpytor = LEA(bytes('AAAA')*8)
         self.response = ''
 
-    def getResponse(self):
-        return self.response
-
+    def request(self,data):
+        return data
 
     def setUp(self, host, port):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

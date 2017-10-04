@@ -1,20 +1,21 @@
 # Echo server program
 import socket
 from multiprocessing import Process, Value
-from CustomCrypto.mode import ECB
-from CustomCrypto.LEA import LEA
+# from CustomCrypto.mode import ECB
+from CustomCrypto.LEA import LEA,ECB
 
 class EchoServer(object):
     def __init__(self, host='127.0.0.1', port=50007):
-        self.encryptor = LEA(bytes('AAAA') * 8)
+        self.encryptor = ECB(True, bytes('AAAA') * 8, PKCS5Padding=True)
         self.host = host
         self.port = port
         print("''Server Initialized")
 
-    def getResponse(self,data):
-        while len(data) > 16:
-            encrypt = self.encryptor.encrypt(data)
-            return encrypt
+    def response(self, request, mode):
+        while len(request) > 16:
+            encrypt = self.encryptor.encrypt(request)
+            final = self.encryptor.final()
+            return encrypt+final
 
     def boot(self,HOST,PORT):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

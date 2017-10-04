@@ -1,8 +1,7 @@
 import unittest
-import unittest.mock
+from unittest import mock
 import requests
-
-from CustomCrypto.LEA import LEA,CBC,ECB
+import CustomCrypto.LEA as LEA
 from server import EchoServer
 from client import EchoClient
 
@@ -13,19 +12,15 @@ def get_data(url):
 class Servertest(unittest.TestCase):
     def setUp(self):
         pass
-#        self.server = EchoServer()
-#        self.client = EchoClient()
-#        self.server.start()
 
     def tearDown(self):
         pass
-#        self.client.close()
-#        self.server.stop()
 
-    def passtestecho(self):
+    def testEncrypted(self):
         pass
-#        data = self.client.send()
-#        self.assertEqual(data, "Hello, world", "data not equal.")
+
+
+
 
 class GetDataTest(unittest.TestCase):
     def test_get_data(self):
@@ -37,11 +32,9 @@ class GetDataTest(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content['Help!'], 'Hello')
 
-
-
 class CryptoTest(unittest.TestCase):
     def setUp(self):
-        self.encryptor = LEA(bytes(1)*32)
+        self.encryptor = LEA.LEA(bytes(1)*32)
         print()
 
     def tearDown(self):
@@ -63,14 +56,14 @@ class CryptoTest(unittest.TestCase):
         print(p)
 
     def testCBC(self):
-        tool = ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        tool = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         plain = 'Hello World With lesser guyes and What are you saying bitch!?'
         encrypt = tool.encrypt(plain)
         print(len(tool.buffer))
         encryptfinal = tool.final()
         print(encrypt+encryptfinal)
 
-        tool = ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        tool = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         decrypt = tool.decrypt(encrypt+encryptfinal)
         decryptfinal = tool.final()
         print(decrypt.decode() + decryptfinal.decode())
