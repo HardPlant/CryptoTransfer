@@ -5,32 +5,42 @@ import client
 def get_input(text):
     return input(text)
 
-def wait_for_response():
-    pass
-
-def try_to_connect():
-    return True, host, port
-
 if __name__ == '__main__':
-    server = server.EchoServer()
-    server.start()
-    get_connected = False
-    host = ''
-    port = 50007
-    print("Waiting for connect...")
-    print("You can connect with someone or wait for response.")
-    print("Want to connect with someone?(Y/N)")
-    if(input == 'Y'):
-        get_connected, host, port = try_to_connect()
-
-    if get_connected:
-        pass
+    print("서버 모드로 ECB 모드 대신 CTR 모드를 사용합니까? (Y/N)")
+    resp = input()
+    if resp == 'Y':
+        mode = 'CTR'
     else:
-        host, port = server.get_connector()
-    client = client.Client(host= host, port= port)
+        mode = 'ECB'
+
+    print("메시지를 들을 서버 포트: ")
+    server_port = int(input())
+
+    server = server.EchoServer(port=server_port, mode=mode)
+    server.start()
 
     while True:
-        print()
-        text = get_input("Input: ")
-        response = client.send(text)
-        print(response)
+        print("메시지 모드로 ECB 모드 대신 CTR 모드를 사용합니까? (Y/N)")
+        resp = input()
+        if resp == 'Y':
+            client_mode = 'CTR'
+        else:
+            client_mode = 'ECB'
+
+        print("메시지를 보낼 서버 주소:")
+        client_host = input()
+        print("메시지를 보낼 서버 포트:")
+        client_port = int(input())
+
+        client = client.Client(host=client_host, port = client_port, mode = client_mode)
+        while True:
+            print("메시지를 입력하세요. (종료: X)")
+            msg = input()
+            if msg == 'X':
+                break
+
+            client.send(msg)
+            print("메시지를 잘 보냈습니다.")
+
+
+

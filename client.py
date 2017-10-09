@@ -48,7 +48,6 @@ class Client():
             data = encryptor.update(data) + encryptor.final()
             s.send(data)
             data = s.recv(1024)
-            print('Received', repr(data))
             self.resp.put(data)
         except:
             self.s.close()

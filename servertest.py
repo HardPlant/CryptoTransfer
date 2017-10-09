@@ -74,6 +74,29 @@ class ServerTest(unittest.TestCase):
         print("Last connector : ")
         print(connector)
 
+class CTRTest(unittest.TestCase):
+    def setUp(self):
+        self.server = server.EchoServer(mode='CTR')
+        self.server.start()
+        self.client = client.Client(mode='CTR')
+
+    def tearDown(self):
+        self.server.stop()
+
+    def testInit(self):
+        data = self.client.send("Hi!")
+        print("Hi! returns")
+        self.assertEqual(data.decode(), "Hi!")
+        data = self.client.send("Hello!")
+        print("Hello! returns")
+        self.assertEqual(data.decode(), "Hello!")
+        data = self.client.send("Toure")
+        self.assertEqual(data.decode(), "Toure")
+        print("Tour! returns")
+        connector = self.server.get_connector()
+        print("Last connector : ")
+        print(connector)
+
 
 if __name__ == '__main__':
     unittest.main()

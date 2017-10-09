@@ -6,26 +6,37 @@ import queue
 import CustomCrypto.LEA as LEA
 
 
-def get_decryptor():
-    return LEA.ECB(LEA.DECRYPT_MODE, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+def get_decryptor(key, mode = 'ECB'):
+    if mode == 'ECB':
+        return get_ECB_decryptor(key)
+    elif mode == 'CTR':
+        return get_CTR_decryptor(key)
 
+def get_ECB_decryptor(key):
+    return LEA.ECB(LEA.DECRYPT_MODE, key, PKCS5Padding=True)
 
-def response(request):
-    decryptor = get_decryptor()
-    decrypt = decryptor.update(request)
-    final = decryptor.final()
-    return decrypt+final
+def get_CTR_decryptor(key):
+    return LEA.CTR(LEA.DECRYPT_MODE, key, '0123456701234567')
+
 
 
 class EchoServer(threading.Thread):
-    def __init__(self, host='127.0.0.1', port=50007):
+    def __init__(self, host='127.0.0.1', port=50007, mode = 'ECB', key = bytes('A',encoding='utf-8')*32):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
+        self.key = key
+        self.mode = mode
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
         self.connector = queue.Queue()
         self._stop_event = threading.Event()
+
+    def response(self, request):
+        decryptor = get_decryptor(self.key, self.mode)
+        decrypt = decryptor.update(request)
+        final = decryptor.final()
+        return decrypt+final
 
     def run(self):
         self.listen()
@@ -44,13 +55,12 @@ class EchoServer(threading.Thread):
             self.s.connect((host, port))
             self.s.send(b'')
         except:
-            print("Server stopped.")
             self.s.close()
 
 
     def stopped(self):
         if self._stop_event.is_set():
-            print("Thread stop checked")
+            pass
         return self._stop_event.is_set()
 
     def get_connector(self):
@@ -71,7 +81,6 @@ class EchoServer(threading.Thread):
             ct.daemon = True
             ct.start()
 
-        print("Listen() Stopped")
         self.sock.close()
         return True
 
@@ -81,20 +90,19 @@ class EchoServer(threading.Thread):
             try:
                 data = client.recv(1024)
                 if data:
-                    res = response(data)
-                    print('Server sends:')
-                    print(res)
+                    res = self.response(data)
+                    print('[Server] Client says: ', end='')
+                    print(res.decode())
                     client.send(res)
                 else:
-                    print("disconnected within else :" + str(address[0]) + ':' + str(address[1]))
-                    print(res)
+                    # print("[Server] disconnected within else :" + str(address[0]) + ':' + str(address[1]))
+                    # print(res)
                     raise Exception('Client disconnected')
             except:
-                print("disconnected with Exception:" + str(address[0]) + ':' + str(address[1]))
+                # print("[Server] disconnected with Exception:" + str(address[0]) + ':' + str(address[1]))
                 client.close()
                 return False
 
         if client:
-            print("listenToClient() Stopped")
             client.close()
             return True
