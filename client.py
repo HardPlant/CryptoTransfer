@@ -4,20 +4,24 @@ import threading
 import CustomCrypto.LEA as LEA
 import queue
 
-def get_encryptor():
-    return LEA.ECB(LEA.ENCRYPT_MODE, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+def get_encryptor(key, mode = 'ECB'):
+    if mode == 'ECB':
+        return get_ECB_encryptor(key)
+    elif mode == 'CTR':
+        return get_CTR_encryptor(key)
 
 def get_ECB_encryptor(key):
-    return LEA.ECB(LEA.ENCRYPT_MODE, key)
+    return LEA.ECB(LEA.ENCRYPT_MODE, key, PKCS5Padding=True)
 
 def get_CTR_encryptor(key):
-    return LEA.CTR(LEA.ENCRYPT_MODE,key, '0123456701234567')
+    return LEA.CTR(LEA.ENCRYPT_MODE, key, '0123456701234567')
 
 class Client():
-    def __init__(self, host = '127.0.0.1', port = 50007, mode = 'ECB'):
+    def __init__(self, host = '127.0.0.1', port = 50007, mode = 'ECB', key = bytes('A',encoding='utf-8')*32):
         self.host = host
         self.port = port
         self.resp = queue.Queue()
+        self.key = key
         self.mode = mode
         print("Sender Running..")
 
@@ -37,7 +41,7 @@ class Client():
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((host, port))
-            encryptor = get_encryptor()
+            encryptor = get_encryptor(self.key, self.mode)
             s = self.s
             if type(data) is str:
                 data = bytes(data,'utf-8')
