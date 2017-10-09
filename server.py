@@ -6,15 +6,15 @@ import queue
 import CustomCrypto.LEA as LEA
 
 
-def get_encryptor():
-    return LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+def get_decryptor():
+    return LEA.ECB(LEA.DECRYPT_MODE, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
 
 
 def response(request):
-    encryptor = get_encryptor()
-    encrypt = encryptor.encrypt(request)
-    final = encryptor.final()
-    return encrypt+final
+    decryptor = get_decryptor()
+    decrypt = decryptor.update(request)
+    final = decryptor.final()
+    return decrypt+final
 
 
 class EchoServer(threading.Thread):

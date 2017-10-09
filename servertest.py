@@ -11,15 +11,11 @@ class Servertest(unittest.TestCase):
         self.encrypt = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         self.decrypt = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
         self.plain = "BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY"
-        self.enc = self.encrypt.encrypt(self.plain) + self.encrypt.final()
-        self.dec = self.decrypt.decrypt(self.enc) + self.decrypt.final()
+        self.enc = self.encrypt.update(self.plain) + self.encrypt.final()
+        self.dec = self.decrypt.update(self.enc) + self.decrypt.final()
 
     def tearDown(self):
         pass
-
-    def testEncrypted(self):
-        enc = server.response("BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY")
-        self.assertEqual(enc, self.enc)
 
 
 class CryptoTest(unittest.TestCase):

@@ -4,14 +4,21 @@ import threading
 import CustomCrypto.LEA as LEA
 import queue
 
-def get_decryptor():
-    return LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+def get_encryptor():
+    return LEA.ECB(LEA.ENCRYPT_MODE, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+
+def get_ECB_encryptor(key):
+    return LEA.ECB(LEA.ENCRYPT_MODE, key)
+
+def get_CTR_encryptor(key):
+    return LEA.CTR(LEA.ENCRYPT_MODE,key, '0123456701234567')
 
 class Client():
-    def __init__(self, host = '127.0.0.1', port = 50007):
+    def __init__(self, host = '127.0.0.1', port = 50007, mode = 'ECB'):
         self.host = host
         self.port = port
         self.resp = queue.Queue()
+        self.mode = mode
         print("Sender Running..")
 
     def send(self,data):
@@ -30,13 +37,13 @@ class Client():
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((host, port))
-            decryptor = get_decryptor()
+            encryptor = get_encryptor()
             s = self.s
             if type(data) is str:
                 data = bytes(data,'utf-8')
+            data = encryptor.update(data) + encryptor.final()
             s.send(data)
             data = s.recv(1024)
-            data = decryptor.decrypt(data) + decryptor.final()
             print('Received', repr(data))
             self.resp.put(data)
         except:
