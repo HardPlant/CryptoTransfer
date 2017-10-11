@@ -11,6 +11,8 @@ import traceback
 
 from time import gmtime, strftime
 
+import client
+import server
 
 #
 # pingScan Button Handler
@@ -87,8 +89,57 @@ def sendChat(event):
 #
 # Setting Window
 #
+class RedirectText:
+    def __init__(self,textCtrl):
+        self.out = textCtrl
+
+    def write(self, string):
+        self.out.WriteText(string)
+
+
 
 class Frame(wx.Frame):
+    def startServer(self, event):
+        if self.rdoServerECB.GetValue() == True:
+            mode = 'ECB'
+        else:
+            mode = 'CTR'
+        self.server = server.EchoServer(host=self.serverHostText.GetValue(),
+                                        port=int(self.serverPort.GetValue()),
+                                        mode=mode)
+        self.serverStartButton.Disable()
+        self.serverExitButton.Enable()
+        return
+
+
+    def stopServer(self, event):
+        self.server.stop()
+        self.serverStartButton.Enable()
+        self.serverExitButton.Disable()
+
+    def startClient(self, event):
+        if self.rdoClientECB.GetValue() == True:
+            mode = 'ECB'
+        else:
+            mode = 'CTR'
+
+        self.client = client.Client(host=self.ClientHostText.GetValue(),
+                                        port=int(self.clientPort.GetValue()),
+                                        mode=mode)
+        self.clientStartButton.Disable()
+        self.clientResetButton.Enable()
+        self.clientChatConfirm.Enable()
+
+    def sendMessage(self, event):
+        self.client.send(self.clientChatText.GetValue())
+        self.clientChatText.SetValue('')
+
+    def stopClient(self, event):
+        self.client = None
+        self.clientStartButton.Enable()
+        self.clientResetButton.Disable()
+        self.clientChatConfirm.Disable()
+
     def __init__(self):
         wx.Frame.__init__(self, parent=None, title="LEA 통신")
         self.SetSize(1000,600)
@@ -99,30 +150,37 @@ class Frame(wx.Frame):
 
         # 버튼 행위
         # 서버, 클라이언트 포트
+        self.rdoServerECB = wx.RadioButton(self.panelAction, label = 'ECB', style=wx.RB_GROUP)
+        self.rdoServerCTR = wx.RadioButton(self.panelAction, label = 'CTR')
         self.serverHostLabel = wx.StaticText(self.panelAction, label='서버 호스트: ')
-        self.clientHostLabel = wx.StaticText(self.panelAction, label='클라이언트 호스트: ')
 
-        self.serverHostText = wx.TextCtrl(self.panelAction)
-        #  self.clientChatText.Bind(wx.EVT_TEXT_ENTER, sendChat)
+        self.serverHostText = wx.TextCtrl(self.panelAction, value="localhost")
+        self.serverHostText.Disable()
 
         self.serverStartButton = wx.Button(self.panelAction, label='서버 시작')
-     #   self.serverStartButton.Bind(wx.EVT_BUTTON, pingScan)
+        self.serverStartButton.Bind(wx.EVT_BUTTON, self.startServer)
 
         self.serverExitButton = wx.Button(self.panelAction, label='서버 종료')
-     #   self.serverExitButton.Bind(wx.EVT_BUTTON, programExit)
+        self.serverExitButton.Disable()
+        self.serverExitButton.Bind(wx.EVT_BUTTON, self.stopServer)
 
-        self.ClientHostText = wx.TextCtrl(self.panelAction)
-        #  self.clientChatText.Bind(wx.EVT_TEXT_ENTER, sendChat)
+        self.rdoClientECB = wx.RadioButton(self.panelAction, label = 'ECB', style=wx.RB_GROUP)
+        self.rdoClientCTR = wx.RadioButton(self.panelAction, label = 'CTR')
+        self.clientHostLabel = wx.StaticText(self.panelAction, label='타겟 호스트: ')
+        self.ClientHostText = wx.TextCtrl(self.panelAction, value='localhost')
 
         self.clientStartButton = wx.Button(self.panelAction, label='클라이언트 설정')
-     #   self.clientStartButton.Bind(wx.EVT_BUTTON, pingScan)
+        self.clientStartButton.Bind(wx.EVT_BUTTON, self.startClient)
+        self.clientResetButton = wx.Button(self.panelAction, label='클라이언트 종료')
+        self.clientResetButton.Bind(wx.EVT_BUTTON, self.stopClient)
 
         self.clientChatLabel = wx.StaticText(self.panelAction, label='메시지: ')
 
         self.clientChatText = wx.TextCtrl(self.panelAction)
-      #  self.clientChatText.Bind(wx.EVT_TEXT_ENTER, sendChat)
+        self.clientChatText.Bind(wx.EVT_TEXT_ENTER, self.sendMessage)
         self.clientChatConfirm = wx.Button(self.panelAction, label='보내기')
-      #  self.clientChatText.Bind(wx.EVT_TEXT_ENTER, sendChat)
+        self.clientChatConfirm.Disable()
+        self.clientChatConfirm.Bind(wx.EVT_BUTTON, self.sendMessage)
 
 
         # 결과가 표시되는 텍스트 영역
@@ -130,7 +188,7 @@ class Frame(wx.Frame):
 
         # 서버, 클라이언트 포트
         self.serverPortLabel = wx.StaticText(self.panelAction, label='서버 포트: ')
-        self.clientPortLabel = wx.StaticText(self.panelAction, label='클라이언트 포트: ')
+        self.clientPortLabel = wx.StaticText(self.panelAction, label='타겟 포트: ')
 
         self.serverPort = wx.SpinCtrl(self.panelAction, -1, '')
         self.serverPort.SetRange(0, 65535)
@@ -144,13 +202,17 @@ class Frame(wx.Frame):
         # 패널 내에서 구성요소 차이를 자동 정렬해줌
         # HorizonalBox 내에 IP 범위 스핀 컨트롤, 버튼 추가
 
-        self.actionBoxServer = wx.BoxSizer()
-        self.actionBoxClient = wx.BoxSizer()
+        self.actionBoxServer = wx.FlexGridSizer(rows=1, cols=8, hgap=5, vgap=5)
+        self.actionBoxClient = wx.FlexGridSizer(rows=1, cols=8, hgap=5, vgap=5)
         self.actionBoxChat = wx.BoxSizer()
 
-        self.actionBoxServer.Add(self.serverHostLabel, proportion=0,flag=wx.LEFT, border=5)
-        self.actionBoxClient.Add(self.clientHostLabel, proportion=0, flag=wx.LEFT, border=5)
+        self.actionBoxServer.Add(self.rdoServerECB, proportion=0,flag=wx.LEFT, border=5)
+        self.actionBoxServer.Add(self.rdoServerCTR, proportion=0,flag=wx.LEFT, border=5)
+        self.actionBoxClient.Add(self.rdoClientECB, proportion=0, flag=wx.LEFT, border=5)
+        self.actionBoxClient.Add(self.rdoClientCTR, proportion=0, flag=wx.LEFT, border=5)
 
+        self.actionBoxServer.Add(self.serverHostLabel, proportion=1, flag=wx.LEFT, border=5)
+        self.actionBoxClient.Add(self.clientHostLabel, proportion=1, flag=wx.LEFT, border=5)
 
         self.actionBoxServer.Add(self.serverHostText,proportion = 2, flag=wx.LEFT, border=5)
         self.actionBoxClient.Add(self.ClientHostText,proportion = 2, flag=wx.LEFT, border=5)
@@ -161,10 +223,11 @@ class Frame(wx.Frame):
         self.actionBoxServer.Add(self.serverPort, proportion=1, flag=wx.LEFT, border=5)
         self.actionBoxClient.Add(self.clientPort, proportion=1, flag=wx.LEFT, border=5)
 
-        self.actionBoxServer.Add(self.serverStartButton, proportion=1,flag=wx.LEFT, border=5)
-        self.actionBoxServer.Add(self.serverExitButton, proportion=1,flag=wx.LEFT, border=5)
+        self.actionBoxServer.Add(self.serverStartButton, proportion=1,flag=wx.RIGHT, border=5)
+        self.actionBoxServer.Add(self.serverExitButton, proportion=1,flag=wx.RIGHT, border=5)
 
         self.actionBoxClient.Add(self.clientStartButton, proportion=1,flag=wx.LEFT, border=5)
+        self.actionBoxClient.Add(self.clientResetButton, proportion=1,flag=wx.LEFT, border=5)
 
         self.actionBoxChat.Add(self.clientChatLabel, proportion=0, flag=wx.LEFT, border=5)
         self.actionBoxChat.Add(self.clientChatText, proportion=1, flag=wx.LEFT, border=5)
@@ -178,6 +241,10 @@ class Frame(wx.Frame):
         self.vertBox.Add(self.actionBoxChat, proportion=0, flag=wx.EXPAND | wx.ALL, border = 5)
         self.vertBox.Add(self.results,proportion=1,flag=wx.EXPAND | wx.LEFT| wx.BOTTOM | wx.RIGHT, border = 5)
 
+        redir = RedirectText(self.results)
+        sys.stdout = redir
+        sys.stderr = redir
+
 
         # 상태 표시줄
         self.CreateStatusBar()
@@ -185,6 +252,7 @@ class Frame(wx.Frame):
         # 박스 사이저를 설정한다.
         self.panelAction.SetSizer(self.vertBox)
         self.panelAction.SetSize(950,550)
+
 
 if __name__ == '__main__':
     # 메인창 표시

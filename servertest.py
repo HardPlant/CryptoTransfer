@@ -8,8 +8,8 @@ import client
 
 class Servertest(unittest.TestCase):
     def setUp(self):
-        self.encrypt = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
-        self.decrypt = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        self.encrypt = LEA2.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
+        self.decrypt = LEA2.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         self.plain = "BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY"
         self.enc = self.encrypt.update(self.plain) + self.encrypt.final()
         self.dec = self.decrypt.update(self.enc) + self.decrypt.final()
@@ -20,7 +20,7 @@ class Servertest(unittest.TestCase):
 
 class CryptoTest(unittest.TestCase):
     def setUp(self):
-        self.encryptor = LEA.LEA(bytes(1)*32)
+        self.encryptor = LEA2.LEA(bytes(1) * 32)
         print()
 
     def tearDown(self):
@@ -39,12 +39,12 @@ class CryptoTest(unittest.TestCase):
         p = decrypted.decode('utf-8')
 
     def testCBC(self):
-        tool = LEA.ECB(True, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        tool = LEA2.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         plain = 'Hello World With lesser guyes and What are you saying bitch!?'
         encrypt = tool.encrypt(plain)
         encryptfinal = tool.final()
 
-        tool = LEA.ECB(False, bytes('A',encoding='utf-8')*32,PKCS5Padding=True)
+        tool = LEA2.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         decrypt = tool.decrypt(encrypt+encryptfinal)
         decryptfinal = tool.final()
 
@@ -93,6 +93,9 @@ class CTRTest(unittest.TestCase):
         data = self.client.send("Toure")
         self.assertEqual(data.decode(), "Toure")
         print("Tour! returns")
+        long_word = "LongWord"*75
+        data = self.client.send(long_word)
+        self.assertEqual(data.decode(), long_word)
         connector = self.server.get_connector()
         print("Last connector : ")
         print(connector)
