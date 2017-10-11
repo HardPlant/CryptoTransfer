@@ -2,8 +2,8 @@
 LEA Algorithm
 See : https://seed.kisa.or.kr/html/egovframework/iwt/ds/ko/ref/LEA%20A%20128-Bit%20Block%20Cipher%20Datasheets-Korean.pdf
 
-
 '''
+
 def BitToInt(x):
     assert(type(x) == bytearray)
     assert(len(x) == 32)

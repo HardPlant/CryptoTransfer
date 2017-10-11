@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 import requests
 import CustomCrypto.LEA as LEA
+import CustomCrypto.LEACustom as cLEA
 import server
 import client
 
