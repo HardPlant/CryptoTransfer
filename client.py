@@ -11,10 +11,10 @@ def get_encryptor(key, mode = 'ECB'):
         return get_CTR_encryptor(key)
 
 def get_ECB_encryptor(key):
-    return LEA2.ECB(LEA2.ENCRYPT_MODE, key, PKCS5Padding=True)
+    return LEA.ECB(LEA.ENCRYPT_MODE, key, PKCS5Padding=True)
 
 def get_CTR_encryptor(key):
-    return LEA2.CTR(LEA2.ENCRYPT_MODE, key, '0123456701234567')
+    return LEA.CTR(LEA.ENCRYPT_MODE, key, '0123456701234567')
 
 class Client():
     def __init__(self, host = '127.0.0.1', port = 50007, mode = 'ECB', key = bytes('A',encoding='utf-8')*32):
@@ -36,6 +36,11 @@ class Client():
             data = None
         self.s.close()
         return data
+    def sendmessage(self, msg):
+        pass
+
+    def getMac(self, msg):
+        pass
 
     def sendsocket(self,host, port, data,queue):
         try:

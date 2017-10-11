@@ -13,10 +13,10 @@ def get_decryptor(key, mode = 'ECB'):
         return get_CTR_decryptor(key)
 
 def get_ECB_decryptor(key):
-    return LEA2.ECB(LEA2.DECRYPT_MODE, key, PKCS5Padding=True)
+    return LEA.ECB(LEA.DECRYPT_MODE, key, PKCS5Padding=True)
 
 def get_CTR_decryptor(key):
-    return LEA2.CTR(LEA2.DECRYPT_MODE, key, '0123456701234567')
+    return LEA.CTR(LEA.DECRYPT_MODE, key, '0123456701234567')
 
 
 
@@ -83,6 +83,9 @@ class EchoServer(threading.Thread):
 
         self.sock.close()
         return True
+
+    def validate(self):
+        pass
 
     def listenToClient(self, client, address):
         res = b''

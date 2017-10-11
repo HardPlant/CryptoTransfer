@@ -8,11 +8,11 @@ import client
 
 class Servertest(unittest.TestCase):
     def setUp(self):
-        self.encrypt = LEA2.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
-        self.decrypt = LEA2.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
+        self.encrypt = LEA.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
+        self.decrypt = LEA.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         self.plain = "BUY IBM STOCK AND BIT COINS, THEN YOU WILL GAIN SOME MONEY"
-        self.enc = self.encrypt.update(self.plain) + self.encrypt.final()
-        self.dec = self.decrypt.update(self.enc) + self.decrypt.final()
+        self.enc = self.encrypt.final()
+        self.dec = self.decrypt.final()
 
     def tearDown(self):
         pass
@@ -20,7 +20,7 @@ class Servertest(unittest.TestCase):
 
 class CryptoTest(unittest.TestCase):
     def setUp(self):
-        self.encryptor = LEA2.LEA(bytes(1) * 32)
+        self.encryptor = LEA.LEA(bytes(1) * 32)
         print()
 
     def tearDown(self):
@@ -35,18 +35,18 @@ class CryptoTest(unittest.TestCase):
 
         decrypted = self.encryptor.decrypt(encrypted)
         self.assertEqual(type(decrypted), type(bytearray()))
+        self.assertEqual(plain,decrypted)
 
-        p = decrypted.decode('utf-8')
-
-    def testCBC(self):
-        tool = LEA2.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
+    def testECB(self):
+        tool = LEA.ECB(True, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         plain = 'Hello World With lesser guyes and What are you saying bitch!?'
         encrypt = tool.encrypt(plain)
         encryptfinal = tool.final()
 
-        tool = LEA2.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
+        tool = LEA.ECB(False, bytes('A', encoding='utf-8') * 32, PKCS5Padding=True)
         decrypt = tool.decrypt(encrypt+encryptfinal)
         decryptfinal = tool.final()
+        self.assertEqual(plain, (decrypt+decryptfinal).decode())
 
 
 class ServerTest(unittest.TestCase):
