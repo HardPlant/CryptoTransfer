@@ -42,7 +42,7 @@ class Client():
         try:
             encryptor = get_encryptor(self.key, self.mode)
             data = encryptor.update(msg) + encryptor.final()
-            mac = getMAC(data, self.key,PKCSPadding=True)
+            mac = getMAC(data, self.key)
             print('[Client] data :' + str(data))
             print('[Client] MAC :' + str(mac))
             return data + mac

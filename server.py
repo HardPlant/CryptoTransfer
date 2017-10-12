@@ -34,20 +34,14 @@ class EchoServer(threading.Thread):
         self._stop_event = threading.Event()
 
     def validate(self, data):
-        try:
-            if len(data) % 16 != 0:
-                return False
-            data_raw = data[:-16]
-            data_mac = data[-16:]
-            mac = getMAC(data_raw,self.key, PKCSPadding=True)
-            print('[Server] MAC :' + str(mac))
-            if data_mac == mac:
-                return True
-            else:
-                return False
-        except Exception as e:
-            print('[Validate Exception] :')
-            print(e)
+        data_raw = data[:-16]
+        data_mac = data[-16:]
+        mac = getMAC(data_raw,self.key)
+        print('[Server] MAC :' + str(mac))
+        if data_mac == mac:
+            return True
+        else:
+            return False
 
 
     def response(self, request):

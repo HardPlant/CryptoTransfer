@@ -49,20 +49,20 @@ class CryptoTest(unittest.TestCase):
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
+        print("************ECB START*************")
         self.server = server.EchoServer()
         self.server.start()
         self.client = client.Client()
 
     def tearDown(self):
         self.server.stop()
-        print("tearDown returns")
+        print("************ECB END*************")
 
     def testInit(self):
         data = self.client.send("Hi!")
         print(data)
         print("Hi! returns")
         self.assertEqual(data.decode(), "Hi!")
-        return
         data = self.client.send("Hello!")
         print("Hello! returns")
         self.assertEqual(data.decode(), "Hello!")
@@ -83,7 +83,6 @@ class CTRTest(unittest.TestCase):
         self.server.stop()
 
     def testInit(self):
-        return
         data = self.client.send("Hi!")
         print("Hi! returns")
         self.assertEqual(data.decode(), "Hi!")

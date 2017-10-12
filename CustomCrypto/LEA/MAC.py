@@ -1,7 +1,7 @@
 from CustomCrypto.LEA import LEA
 
 
-def getMAC(pt, key, PKCSPadding = True):
+def getMAC(pt, key):
     if pt is None:
         raise AttributeError('Improprt pt')
     lea = LEA(key)
@@ -17,21 +17,12 @@ def getMAC(pt, key, PKCSPadding = True):
 
         offset+= 16
 
-    if PKCSPadding:
-        more = len(buffer) - offset
-        buffer += bytearray([more])*more
+    more = len(buffer) - offset
+    buffer += bytearray([more])*more
 
     chain_vec = lea.encrypt(LEA.xorAr(chain_vec, buffer[offset:offset+16]))
 
     return chain_vec
-
-
-
-
-
-
-def is_vailid(ct, mac):
-    pass
 
 
 
