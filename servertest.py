@@ -1,8 +1,5 @@
 import unittest
-from unittest import mock
-import requests
 import CustomCrypto.LEA as LEA
-import CustomCrypto.LEACustom as cLEA
 import server
 import client
 
@@ -55,7 +52,6 @@ class ServerTest(unittest.TestCase):
         self.server = server.EchoServer()
         self.server.start()
         self.client = client.Client()
-
 
     def tearDown(self):
         self.server.stop()

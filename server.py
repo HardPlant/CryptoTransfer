@@ -2,8 +2,8 @@
 import socket
 import threading
 import queue
-# from CustomCrypto.mode import ECB
 import CustomCrypto.LEA as LEA
+from CustomCrypto.LEA.MAC import getMAC
 
 
 def get_decryptor(key, mode = 'ECB'):
@@ -31,6 +31,18 @@ class EchoServer(threading.Thread):
         self.sock.bind((self.host, self.port))
         self.connector = queue.Queue()
         self._stop_event = threading.Event()
+
+    def validate(self, data):
+        if len(data) % 16 != 0:
+            return False
+        data_raw = data[:-16]
+        data_mac = data[-16:]
+        mac = getMAC(data_raw)
+        if data_mac == mac:
+            return True
+        else:
+            return False
+
 
     def response(self, request):
         decryptor = get_decryptor(self.key, self.mode)
@@ -84,9 +96,6 @@ class EchoServer(threading.Thread):
         self.sock.close()
         return True
 
-    def validate(self):
-        pass
-
     def listenToClient(self, client, address):
         res = b''
         while not self.stopped():
@@ -94,9 +103,12 @@ class EchoServer(threading.Thread):
                 data = client.recv(1024)
                 if data:
                     res = self.response(data)
-                    print('[Server] Client says: ', end='')
-                    print(res.decode())
-                    client.send(res)
+                    if(self.validate(res)):
+                        print('[Server] Client says: ', end='')
+                        print(res.decode())
+                        client.send(res)
+                    else:
+                        client.send("NAK")
                 else:
                     # print("[Server] disconnected within else :" + str(address[0]) + ':' + str(address[1]))
                     # print(res)
