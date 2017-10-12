@@ -2,6 +2,7 @@
 import socket
 import threading
 import CustomCrypto.LEA as LEA
+from CustomCrypto.LEA.MAC import getMAC
 import queue
 
 def get_encryptor(key, mode = 'ECB'):
@@ -36,21 +37,20 @@ class Client():
             data = None
         self.s.close()
         return data
-    def sendmessage(self, msg):
-        pass
 
-    def getMac(self, msg):
-        pass
+    def request(self, msg):
+        encryptor = get_encryptor(self.key, self.mode)
+        data = encryptor.update(msg) + encryptor.final()
+        return data + getMAC(data,self.key,PKCSPadding=True)
 
     def sendsocket(self,host, port, data,queue):
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((host, port))
-            encryptor = get_encryptor(self.key, self.mode)
             s = self.s
             if type(data) is str:
                 data = bytes(data,'utf-8')
-            data = encryptor.update(data) + encryptor.final()
+            data = self.request(data)
             s.send(data)
             data = s.recv(1024)
             self.resp.put(data)

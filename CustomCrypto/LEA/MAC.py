@@ -21,7 +21,7 @@ def getMAC(pt, key, PKCSPadding = True):
         more = len(buffer) - offset
         buffer += bytearray([more])*more
 
-    LEA.xorAr(chain_vec, buffer)
+    chain_vec = lea.encrypt(LEA.xorAr(chain_vec, buffer[offset:offset+16]))
 
     return chain_vec
 
