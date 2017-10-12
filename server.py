@@ -1,9 +1,9 @@
 # Echo server program
+import queue
 import socket
 import threading
-import queue
+
 import CustomCrypto.LEA as LEA
-import traceback
 from CustomCrypto.LEA.MAC import getMAC
 
 
@@ -37,8 +37,13 @@ class EchoServer(threading.Thread):
     def validate(self, data):
         data_raw = data[:-16]
         data_mac = data[-16:]
-        mac = getMAC(data_raw,self.key)
+
+        decryptor = get_decryptor(self.key, self.mode)
+        plain = decryptor.update(data_raw) + decryptor.final()
+
+        mac = getMAC(plain,self.key)
         print('[Server] MAC :' + str(mac))
+
         if data_mac == mac:
             return True
         else:
@@ -104,13 +109,12 @@ class EchoServer(threading.Thread):
                     data_raw = data[:-16]
                     if self.validate(data) :
                         res = self.response(data_raw)
-                        print('[Server] Client says: ', end='')
-                        print(res.decode())
+                        print('[Server] Client says: ' + str(res))
                         client.send(res)
                     else:
                         print('[Server] Client MAC Failed: ', end='')
                         print(res.decode())
-                        client.send("NAK")
+                        client.send(res)
                 else:
                     # print("[Server] disconnected within else :" + str(address[0]) + ':' + str(address[1]))
                     # print(res)

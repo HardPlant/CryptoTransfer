@@ -1,9 +1,11 @@
 # Echo client program
+import queue
 import socket
 import threading
+
 import CustomCrypto.LEA as LEA
 from CustomCrypto.LEA.MAC import getMAC
-import queue
+
 
 def get_encryptor(key, mode = 'ECB'):
     if mode == 'ECB':
@@ -42,7 +44,7 @@ class Client():
         try:
             encryptor = get_encryptor(self.key, self.mode)
             data = encryptor.update(msg) + encryptor.final()
-            mac = getMAC(data, self.key)
+            mac = getMAC(msg, self.key)
             print('[Client] data :' + str(data))
             print('[Client] MAC :' + str(mac))
             return data + mac
