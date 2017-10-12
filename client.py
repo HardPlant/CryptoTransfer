@@ -39,9 +39,16 @@ class Client():
         return data
 
     def request(self, msg):
-        encryptor = get_encryptor(self.key, self.mode)
-        data = encryptor.update(msg) + encryptor.final()
-        return data + getMAC(data,self.key,PKCSPadding=True)
+        try:
+            encryptor = get_encryptor(self.key, self.mode)
+            data = encryptor.update(msg) + encryptor.final()
+            mac = getMAC(data, self.key,PKCSPadding=True)
+            print('[Client] data :' + str(data))
+            print('[Client] MAC :' + str(mac))
+            return data + mac
+
+        except Exception as e:
+            print(e)
 
     def sendsocket(self,host, port, data,queue):
         try:
@@ -51,10 +58,12 @@ class Client():
             if type(data) is str:
                 data = bytes(data,'utf-8')
             data = self.request(data)
+            print('[Client] Sending :' + str(data))
             s.send(data)
             data = s.recv(1024)
             self.resp.put(data)
-        except:
+        except Exception as e:
             self.s.close()
+            print(e)
             print("Client: remote connection failed")
 

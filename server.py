@@ -3,6 +3,7 @@ import socket
 import threading
 import queue
 import CustomCrypto.LEA as LEA
+import traceback
 from CustomCrypto.LEA.MAC import getMAC
 
 
@@ -33,22 +34,26 @@ class EchoServer(threading.Thread):
         self._stop_event = threading.Event()
 
     def validate(self, data):
-        if len(data) % 16 != 0:
-            return False
-        data_raw = data[:-16]
-        data_mac = data[-16:]
-        mac = getMAC(data_raw)
-        if data_mac == mac:
-            return True
-        else:
-            return False
+        try:
+            if len(data) % 16 != 0:
+                return False
+            data_raw = data[:-16]
+            data_mac = data[-16:]
+            mac = getMAC(data_raw,self.key, PKCSPadding=True)
+            print('[Server] MAC :' + str(mac))
+            if data_mac == mac:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print('[Validate Exception] :')
+            print(e)
 
 
     def response(self, request):
         decryptor = get_decryptor(self.key, self.mode)
-        decrypt = decryptor.update(request)
-        final = decryptor.final()
-        return decrypt+final
+        decrypt = decryptor.update(request) + decryptor.final()
+        return decrypt
 
     def run(self):
         self.listen()
@@ -102,19 +107,22 @@ class EchoServer(threading.Thread):
             try:
                 data = client.recv(1024)
                 if data:
-                    res = self.response(data)
-                    if(self.validate(res)):
+                    print('[Server] incoming data :' + str(data))
+                    data_raw = data[:-16]
+                    if self.validate(data) :
+                        res = self.response(data_raw)
                         print('[Server] Client says: ', end='')
                         print(res.decode())
                         client.send(res)
                     else:
+                        print('[Server] Client MAC Failed: ', end='')
+                        print(res.decode())
                         client.send("NAK")
                 else:
                     # print("[Server] disconnected within else :" + str(address[0]) + ':' + str(address[1]))
                     # print(res)
                     raise Exception('Client disconnected')
-            except:
-                # print("[Server] disconnected with Exception:" + str(address[0]) + ':' + str(address[1]))
+            except Exception as e:
                 client.close()
                 return False
 
